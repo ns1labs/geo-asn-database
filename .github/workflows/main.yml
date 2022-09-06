@@ -1,0 +1,24 @@
+name: verify DB update
+on:
+  push:
+    branches: [ "main" ]
+  schedule:
+    - cron: '0 0 * * 1'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: New DB check
+        run: |
+          cd ${{github.workspace}}
+          wget "https://download.db-ip.com/free/dbip-city-lite-$(date +"%Y")-$(date +"%m").mmdb.gz"
+          if [ $? -ne 0 ]; then echo "monthly update not occurred yet"; exit 0; fi
+          gzip -d dbip*; mv dbip* city.mmdb; gzip city.mmdb
+          wget "https://download.db-ip.com/free/dbip-asn-lite-$(date +"%Y")-$(date +"%m").mmdb.gz"
+          if [ $? -ne 0 ]; then echo "monthly update not occurred yet"; exit 0; fi
+          gzip -d dbip*; mv dbip* asn.mmdb; gzip asn.mmdb
+      - name: commit changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: update last check
