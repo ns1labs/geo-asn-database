@@ -12,6 +12,7 @@ jobs:
       - name: New DB check
         run: |
           cd ${{github.workspace}}
+          rm -rf *.mmdb.gz 
           wget "https://download.db-ip.com/free/dbip-city-lite-$(date +"%Y")-$(date +"%m").mmdb.gz"
           if [ $? -ne 0 ]; then echo "monthly update not occurred yet"; exit 0; fi
           gzip -d dbip*; mv dbip* city.mmdb; gzip city.mmdb
